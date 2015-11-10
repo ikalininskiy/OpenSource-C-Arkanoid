@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++11
-LDFLAGS=-lX11 -lpthread
+LDFLAGS=-lX11 -lpthread -lao -lsndfile -ldl -lm
 SOURCES=main.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=TestTinyArkanoid

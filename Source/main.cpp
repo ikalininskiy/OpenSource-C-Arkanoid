@@ -8,6 +8,7 @@
 using namespace cimg_library;
 
 // Классы вынесены в отдельные файлы исходников (.h)
+#include "Sound.h"
 #include "RectangleElement.h" // Базовый класс примитивного элемента игрового поля (прямоугольника)
 #include "GamePad.h" // Класс игрового поля
 #include "Brick.h" // Класс объекта кирпич
@@ -15,10 +16,12 @@ using namespace cimg_library;
 #include "Board.h" // Класс объекта ракетки-доски
 #include "Menu.h" // Класс игрового меню
 
+
 // Начало Main()
 //
 int main()
 {
+	ao_initialize();
     RectangleElement rectangle; // Объявляем базовый объект элемент игрового поля (прямоугольник)
     GamePad gamePad; // Объявляем объект игровое поле
     Brick brick; // Объявляем объект кирпич
@@ -67,6 +70,7 @@ int main()
         // Отображаем оставшееся количество кирпичей
         imgDisplay.set_title("Left : %u", bricksScore - playerScore);
     }
+	ao_shutdown();
     return 0; // Конец цикла и выход
 }
 // Здесь конец Main()

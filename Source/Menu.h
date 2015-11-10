@@ -3,6 +3,7 @@
 //
 // Класс игрового меню
 //
+
 class Menu {
 private:
     CImg<unsigned char> gameOver;
@@ -61,7 +62,9 @@ public:
     // Рисуем и обрабатываем игровое меню
     template <class T>
     void startMenu(T &imgDisplay) {
-        imgDisplay.display(gameMenu);
+        AUDIO_FILE *audio = open_audio("resources/MenuMusic.wav");
+        play_audio(audio);
+	    imgDisplay.display(gameMenu);
         while (!start_signal && !exit_signal) {
             imgDisplay.wait();
             if (imgDisplay.is_resized) imgDisplay.resize(imgDisplay);
@@ -78,6 +81,7 @@ public:
                 imgDisplay.display(gameMenu);
             }
         }
+        close_audio(audio);
     }
 
     bool isExit() { return exit_signal; }
