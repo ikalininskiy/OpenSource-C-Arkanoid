@@ -15,13 +15,10 @@ using namespace cimg_library;
 #include "Ball.h" // Класс объекта шарик
 #include "Board.h" // Класс объекта ракетки-доски
 #include "Menu.h" // Класс игрового меню
-
-
 // Начало Main()
-//
 int main()
 {
-	ao_initialize();
+    Sound sound;
     RectangleElement rectangle; // Объявляем базовый объект элемент игрового поля (прямоугольник)
     GamePad gamePad; // Объявляем объект игровое поле
     Brick brick; // Объявляем объект кирпич
@@ -32,9 +29,7 @@ int main()
 
     // Перемещаем окно в центр экрана
     imgDisplay.move((CImgDisplay::screen_dimx() - gamePad.width()) / 2, (CImgDisplay::screen_dimy() - gamePad.height()) / 2);
-
     // Основной цикл приложения, проверяем закрытие окна и нажатие ESC
-    //
     for (unsigned int playerScore = 0, bricksScore = 0;
                      !imgDisplay.is_closed && imgDisplay.key != cimg::keyESC && !menu.isExit();)
     {
@@ -44,7 +39,7 @@ int main()
             imgDisplay.show_mouse(); // Показываем курсор мыши
 
             // Выводим меню или графику в зависимости от ситуации
-            menu.showMenu(imgDisplay, gamePad, ball, playerScore, bricksScore);
+            menu.showMenu(imgDisplay, gamePad, ball, playerScore, bricksScore, sound);
 
             gamePad.clear(); // Очищаем игровое поле
             gamePad.fillRandomBricks(brick); // Заполняем игровое поле случайными кирпичами
@@ -58,19 +53,16 @@ int main()
 
             imgDisplay.hide_mouse(); // Прячем курсор мыши
         }
-
         gamePad.display(imgDisplay, board, ball); // Отображаем кадр игрового поля
         int X = board.getMouseX(imgDisplay, gamePad); // Берем координату доски в зависимости от мышки
         board.move(X); // Двигаем ракетку-доску
         ball.move(); // Двигаем шарик
 
         // Проверяем шарик на всевозможные столкновения
-        playerScore = ball.testCollisions(gamePad, brick, board, playerScore);
-
+        playerScore = ball.testCollisions(gamePad, brick, board, playerScore, sound);
         // Отображаем оставшееся количество кирпичей
         imgDisplay.set_title("Left : %u", bricksScore - playerScore);
     }
-	ao_shutdown();
     return 0; // Конец цикла и выход
 }
 // Здесь конец Main()

@@ -77,8 +77,8 @@ public:
 
     // Функция проверки на столкновение шарика с краями игрового поля, с ракеткой-доской и с кирпичами
     //
-    template <class T1, class T2, class T3, typename T4>
-    unsigned int testCollisions(T1 &gamePad, T2 &brick, T3 board, T4 playerScore)
+    template <class T1, class T2, class T3, typename T4, typename T5>
+    unsigned int testCollisions(T1 &gamePad, T2 &brick, T3 board, T4 playerScore, T5 &sound)
     {
         // Проверяем столкновение шарика с правым и левым краем игрового поля
         if ((X >= gamePad.width() - widthHalf()) ||
@@ -109,6 +109,9 @@ public:
             xVector += (board.X() - board.Xo()) / heightHalf();
             if (cimg::abs(xVector) > ballXsize)
                 xVector *= ballXsize / cimg::abs(xVector);
+
+            //play impact board
+            sound.playImpactBoard();
         }
 
         // Если шарик на верхней половине игрового поля
@@ -128,6 +131,9 @@ public:
                 else if (Yo < (Y << 4) || Yo >= ((Y + 1) << 4))
                     // По оси Y
                     yVector = -yVector;
+
+                //play impact brick
+                sound.playImpactBrick();
             }
         }
         return playerScore;
