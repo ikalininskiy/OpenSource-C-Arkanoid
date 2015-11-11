@@ -4,6 +4,9 @@ C++ Arkanoid with open source code
 Исходные тексты в стандарте C++11, являются кроссплатформенными.
 
 Можно компилировать под "юниксы" на gcc (для запуска под "юникс" потребуется установленный опенсурс пакет ImageMagick, libao, libpttread, libsndfile. См Makefile).
+https://www.xiph.org/ao/
+http://www.mega-nerd.com/libsndfile/
+
 
 Описание папок в архиве:
  
