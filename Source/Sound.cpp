@@ -1,16 +1,21 @@
-
-
+//
+// 2015 (c) Copyright Victor Borisov
+//
+// Тут немножка помешана Си и Си++, т.к. работа с потоками и звуковыми устройства имеет API на Си.
 
 #include "Sound.h"
 #include <ao/ao.h>
 #include <sndfile.h>
 #include <memory.h>
 
-//Размер буфера для звукового файла, 10 Мб =)
-#define BUF_SIZE 10*1024*1024
+//Размер буфера для звукового файла, 2 Мб =)  (увеличить если файлы большие)
+#define BUF_SIZE 2*1024*1024
 
 //Внешняя функция для pthread, чота сложно давать ссылку на функцию внутри класса. Так что пока так.
 static void *play_sync_audio(void *buffer) {
+    //Играть звук
+    AUDIO_FILE *audio = (AUDIO_FILE *) buffer;
+
     ao_device *device;
     ao_sample_format format;
     int default_driver;
@@ -19,8 +24,8 @@ static void *play_sync_audio(void *buffer) {
     //Настройка формата WAV файла
     memset(&format, 0, sizeof(format));
     format.bits = 16;
-    format.channels = 1;
-    format.rate = 8000;
+    format.channels = audio->channels;
+    format.rate = audio->rate;
     format.byte_format = AO_FMT_LITTLE;
     //Открыть устройство
     device = ao_open_live(default_driver, &format, NULL);
@@ -28,8 +33,6 @@ static void *play_sync_audio(void *buffer) {
         fprintf(stderr, "Error opening device.\n");
         return NULL;
     }
-    //Играть звук
-    AUDIO_FILE *audio = (AUDIO_FILE *) buffer;
     ao_play(device, audio->bytes, audio->nbytes);
     //Закрыть устройство
     ao_close(device);
@@ -37,14 +40,20 @@ static void *play_sync_audio(void *buffer) {
 }
 
 AUDIO_FILE *Sound::open_audio(char *filename) {
-    AUDIO_FILE *audio = (AUDIO_FILE*) malloc(sizeof(AUDIO_FILE));
-
     //Открыть WAV файл
     SF_INFO sfinfo;
     SNDFILE* file = sf_open(filename, SFM_READ, &sfinfo);
 
     //Считать данные звука в AUDIO_FILE
-    audio->bytes = (char*)malloc(sizeof(char)*BUF_SIZE);
+    if ((sfinfo.format & SF_FORMAT_WAV) == 0){
+        fprintf(stderr, "Audio is not WAV file.\n");
+        return NULL;
+    }
+
+    AUDIO_FILE *audio = new AUDIO_FILE;
+    audio->channels = sfinfo.channels;
+    audio->rate = sfinfo.samplerate;
+    audio->bytes = new char[BUF_SIZE];
     audio->nbytes = sf_read_raw(file, audio->bytes, BUF_SIZE);
 
     //Закрыть WAV файл
@@ -52,13 +61,14 @@ AUDIO_FILE *Sound::open_audio(char *filename) {
     return audio;
 }
 
+
 void Sound::close_audio(AUDIO_FILE* audio) {
     //Освободить занятые ресурсы звуком
-    free(audio->bytes);
-    free(audio);
+    delete [] audio->bytes;
+    delete audio;
 }
 
-void Sound::play_audio(AUDIO_FILE *audio) {
+void Sound::play_async_audio(AUDIO_FILE *audio) {
     //Каждый звук играет в своем отдельном треде
     pthread_t thread;
     if(pthread_create(&thread, NULL, play_sync_audio, audio)) {
@@ -91,7 +101,7 @@ Sound::~Sound() {
 
 //Музыка в меню
 void Sound::playMenuMusic() {
-    play_audio(menuMusic);
+    play_async_audio(menuMusic);
 }
 
 //Остановить музыку
@@ -101,10 +111,10 @@ void Sound::stopMenuMusic() {
 
 //Звук при контакте с кирпичем
 void Sound::playImpactBrick() {
-    play_audio(impactBrick);
+    play_async_audio(impactBrick);
 }
 
 //Звук при контакте с доской
 void Sound::playImpactBoard() {
-    play_audio(impactBoard);
+    play_async_audio(impactBoard);
 }

@@ -87,12 +87,14 @@ public:
             X -= xVector;
             Y -= yVector;
             xVector = -xVector;
+            sound.playImpactBoard();
         }
 
         // Проверяем столкновение шарика с верхним краем игрового поля
         if (Y < heightHalf()) {
             Y = (float) heightHalf();
             yVector = -yVector;
+            sound.playImpactBoard();
         }
 
         // Проверяем столкновение шарика с ракеткой-доской

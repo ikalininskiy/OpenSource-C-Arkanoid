@@ -21,3 +21,6 @@ run: all
 
 build-dir: 
 	mkdir -p $(BUILDPATH)
+
+clean:
+	rm $(BUILDPATH)/*.o $(TARGET)

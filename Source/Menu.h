@@ -64,8 +64,10 @@ public:
     void startMenu(T &imgDisplay, T2 &sound) {
         sound.playMenuMusic();
 	    imgDisplay.display(gameMenu);
-        while (!start_signal && !exit_signal) {
-            imgDisplay.wait();
+        //Добавлена проверка на закрытие окна
+        while (!start_signal && !exit_signal && !imgDisplay.is_closed) {
+            //Ждем событий 100 мс, чтобы полностью не блокировать поток
+            imgDisplay.wait(100);
             if (imgDisplay.is_resized) imgDisplay.resize(imgDisplay);
 
             if ((imgDisplay.mouse_x >= 0) && (imgDisplay.mouse_x <= 256) &&
