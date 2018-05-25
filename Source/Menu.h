@@ -3,6 +3,7 @@
 //
 // Класс игрового меню
 //
+
 class Menu {
 private:
     CImg<unsigned char> gameOver;
@@ -24,27 +25,27 @@ public:
     }
 
     // Обработка результирующих экранов и игрового меню
-    template <class T1, class T2, class T3, typename T4, typename T5>
-    void showMenu(T1 &imgDisplay, T2 gamePad, T3 ball, T4 playerScore, T5 bricksScore) {
+    template <class T1, class T2, class T3, typename T4, typename T5, typename T6>
+    void showMenu(T1 &imgDisplay, T2 gamePad, T3 ball, T4 playerScore, T5 bricksScore, T6 &sound) {
         start_signal = exit_signal = false;
 
         // Если это начало игры, то просто вызываем игровое меню
         if ((playerScore == bricksScore) && (playerScore == 0)) {
-            startMenu(imgDisplay);
+            startMenu(imgDisplay, sound);
         }
 
         // Если уронил шарик, то ГеймОвер
         if (ball.fallDown(gamePad)) {
             imgDisplay.display(gameOver);
             waitUser(imgDisplay);
-            startMenu(imgDisplay);
+            startMenu(imgDisplay, sound);
         }
 
         // Если выиграл, то Экран Победы
         if ((playerScore == bricksScore) && (playerScore != 0)) {
             imgDisplay.display(gameWin);
             waitUser(imgDisplay);
-            startMenu(imgDisplay);
+            startMenu(imgDisplay, sound);
         }
     }
 
@@ -59,11 +60,14 @@ public:
     }
 
     // Рисуем и обрабатываем игровое меню
-    template <class T>
-    void startMenu(T &imgDisplay) {
-        imgDisplay.display(gameMenu);
-        while (!start_signal && !exit_signal) {
-            imgDisplay.wait();
+    template <class T, class T2>
+    void startMenu(T &imgDisplay, T2 &sound) {
+        sound.playMenuMusic();
+	    imgDisplay.display(gameMenu);
+        //Добавлена проверка на закрытие окна
+        while (!start_signal && !exit_signal && !imgDisplay.is_closed) {
+            //Ждем событий 100 мс, чтобы полностью не блокировать поток
+            imgDisplay.wait(100);
             if (imgDisplay.is_resized) imgDisplay.resize(imgDisplay);
 
             if ((imgDisplay.mouse_x >= 0) && (imgDisplay.mouse_x <= 256) &&
@@ -78,6 +82,7 @@ public:
                 imgDisplay.display(gameMenu);
             }
         }
+        sound.stopMenuMusic();
     }
 
     bool isExit() { return exit_signal; }
